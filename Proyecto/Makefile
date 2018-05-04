@@ -2,7 +2,7 @@ FLAG = -std=gnu99 -Wall -g
 
 all: semaforos.o utilidades.o caballo.o imprimir.o main 
 
-main: main.c imprimir.o semaforos.o utilidades.o caballo.o gestor_apuestas.o shared_memory.o
+main: main.c imprimir.o semaforos.o utilidades.o caballo.o gestor_apuestas.o shared_memory.o 
 	gcc -o main main.c caballo.o imprimir.o semaforos.o utilidades.o gestor_apuestas.o shared_memory.o -lpthread
 
 
