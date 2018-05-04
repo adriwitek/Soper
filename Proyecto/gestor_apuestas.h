@@ -15,8 +15,9 @@
 
 #define KEY_G 139  /*!<Random key value*/
 
+
 typedef struct _apuesta {
-  int apostador_id;             /*meterrrrrrr*/
+  int apostador_id;
   int ventanilla_id;
 	int caballo_id;
 	double cotizacion_caballo;
@@ -26,14 +27,14 @@ typedef struct _apuesta {
 
 
 typedef struct _apostador{
-	int id; //Quien lo ha postado
+	int id;
 	char nombre[15];
 	double total_apostado;
 	int n_apuestas_realizadas;
-	apuesta apuestas_realizadas[30]; // 30 seg por apuesta,cada segundo 1,MAX 30 apuestas
+	apuesta apuestas_realizadas[35]; 
 	double beneficios_obtenidos;
 	double dinero_ganado;
-	double saldo;
+  double saldo;
 } apostador;
 
 typedef struct _gestor_apuestas{
@@ -59,12 +60,12 @@ typedef struct _Mensaje_Ventanilla{ /*!< estructura mensaje*/
   double dinero_apuesta;
 }mensaje_ventanilla; /*!< mensaje*/
 
-/*typedef struct _comunicacion_con_gestor {
-    short caballos_iniciados;   //Boolean
-    short carrera_comenzada;    //Boolean
+typedef struct _comunicacion_con_gestor {
+    short caballos_iniciados;   /*Boolean*/
+    short carrera_comenzada;    /*Boolean*/
     struct _caballos * caballos_creados;
     
-}comunicacion_con_gestor;*/
+}comunicacion_con_gestor;
  
 int crear_ventanillas(struct _gestor_apuestas * g_apuestas,caballos* e_cab, int n_ventanillas,int n_apostadores, int msqid);
 int ventanillas_abre_ventas(struct _gestor_apuestas * g_apuestas);
@@ -78,77 +79,69 @@ double get_total_apostado(struct _gestor_apuestas * g_apuestas);
 apostador * get_apostador_by_id(struct _gestor_apuestas * g_apuestas,int id);
 
 
-/***SETTERS***//*
-void set_apuesta_ventanilla_id(apuesta * ap, int in){ apuesta->ventanilla_id=in;}
-void set_apuesta_caballo_id(apuesta * ap, int in){ apuesta->caballo_id=in;}
-void set_apuesta_cotizacion_caballo(apuesta * ap, double in){ apuesta->cotizacion_caballo=in;}
-void set_apuesta_cantidad_apostada(apuesta * ap, double in){ apuesta->cantidad_apostada=in;}
-void set_apuesta_posible_beneficio(apuesta * ap, double in){ apuesta->posible_beneficio=in;}
-
-void set_apostador_id(apostador * ap, int in){ apostador->id=in;}
-void set_apostador_nombre(apostador * ap, char in[]){ strcpy(apostador->nombre,in);}
-void set_apostador_total_apostado(apostador * ap, double in){ apostador->total_apostado=in;}
-//set_apostador_n_apuestas_realizadas(apostador ap, in){ apostador->n_apuestas_realizadas=in;}
-void set_apostador_apuestas_realizadas(apostador * ap, apuesta in){ apostador->apuestas_realizadas[n_apuestas_realizadas]=in; n_apuestas_realizadas ++;}
-void set_apostador_beneficios_obtenidos(apostador * ap, double in){ apostador->beneficios_obtenidos=in;}
-void set_apostador_dinero_ganado(apostador * ap,  double in){ apostador->dinero_ganado=in;}*/
-/*void set_apostador_saldo(apostador * apostador,  double saldo);
-void set_gestor_apuestas_apostador_saldo(gestor_apuestas * ga,int id,  double saldo);
-
-void set_gestor_apuestas_n_ventanillas(gestor_apuestas * ga, int in);*/
-//set_gestor_apuestas_ventanillas(gestor_apuestas * ga, )  pthread_t * ventanillas;*/
-
-//void set_gestor_apuestas_msqid(gestor_apuestas * ga, int in);/*
-
-/**//***FIN SETTERS***/
-
-
-/***GETTERS***//*
-int get_apuesta_ventanilla_id(apuesta ap){return ap->ventanilla_id; }
-int get_apuesta_caballo_id(apuesta ap){return ap->caballo_id; }
-double get_apuesta_cotizacion_caballo(apuesta ap){return ap->cotizacion_caballo; }
-double get_apuesta_cantidad_apostada(apuesta ap){return ap->cantidad_apostada; }
-double  get_apuesta_posible_beneficio(apuesta ap){return ap->posible_beneficio; }
-
-int get_apostador_id(apostador ap){ return ap->id;}
-char get_apostador_nombre(apostador ap){ return ap->nombre;}
-double get_apostador_total_apostado(apostador ap){ return ap->total_apostado;}
-int get_apostador_n_apuestas_realizadas(apostador ap){ return ap->n_apuestas_realizadas;}
-apuesta get_apostador_apuestas_realizadas(apostador ap){ return ap->apuestas_realizadas;}
-double get_apostador_beneficios_obtenidos(apostador ap){ return ap->beneficios_obtenidos;}
-double get_apostador_dinero_ganado(apostador ap){ return ap->dinero_ganado;}*/
-//double get_apostador_saldo(apostador ap);
-//double get_gestor_apuestas_apostador_saldo(gestor_apuestas ga, int i);
-/*
-int get_gestor_apuestas_n_ventanillas(gestor_apuestas ga){return ga->n_ventanillas;}
-//set_gestor_apuestas_ventanillas(gestor_apuestas  ga, )  
-double get_gestor_apuestas_msqid(gestor_apuestas ga){return ga->msqid;}
-//set_gestor_apuestas_sem_ventanillas(gestor_apuestas  ga, int in){}    sem_ventanillas;//Zonas criticas de memoria,semaforo
-short get_gestor_apuestas_carrera_comenzada(gestor_apuestas ga){return ga->carrera_comenzada;}
-//set_gestor_apuestas_n_apostadores(gestor_apuestas  ga, int in)*/
-//apostador get_gestor_apuestas_apostadores(gestor_apuestas ga){return ga->apostadores};
-
-
-/*
-int get_gestor_apuestas_total_apostado(gestor_apuestas ga){return ga->total_apostado;}
-//set_gestor_apuestas_apuestas()
-//apuesta get_gestor_apuestas_apuestas_realizadas(gestor_apuestas ga){return ga->apuestas_realizadas};*/
-/**/
 
 
 
-void set_gestor_apuestas_n_ventanillas(gestor_apuestas * ga, int in);
-void set_apostador_saldo(apostador * apostador,  double saldo);
-void set_gestor_apuestas_apostador_saldo(gestor_apuestas * ga,int id,  double saldo);
+/***SETTERS***/
+void set_gestor_apuestas_msqid(gestor_apuestas * ga, int in);
+/***FIN SETTERS***/
+
+
+/***GETTERS***/
+
+
+int get_gestor_apuestas_n_apuestas(gestor_apuestas ga);
+int get_gestor_apuestas_n_apostadores(gestor_apuestas ga);
+int get_gestor_apuestas_apostador_id(gestor_apuestas ga, int i);
+int get_gestor_apuestas_ventanilla_id(gestor_apuestas ga, int i);
+int get_gestor_apuestas_caballo_id(gestor_apuestas ga, int i);
+double get_gestor_apuestas_cotizacion_caballo(gestor_apuestas ga, int i);
+double get_gestor_apuestas_cantidad_apostada(gestor_apuestas ga, int i);
+int get_gestor_apuestas_apostador_n_apuestas_realizadas(gestor_apuestas ga, int i);
+
+
+/*GETTERS*/
+
+int get_apuesta_apostador_id(apuesta ap);
+int get_apuesta_ventanilla_id(apuesta ap);
+int get_apuesta_caballo_id(apuesta ap);
+double get_apuesta_cotizacion_caballo(apuesta ap);
+double get_apuesta_cantidad_apostada(apuesta ap);
+double get_apuesta_posible_beneficio(apuesta ap);
+
+int get_apostador_id(apostador ap);
+char * get_apostador_nombre(apostador ap);
+double get_apostador_total_apostado(apostador ap);
+int get_apostador_n_apuestas_realizadas(apostador ap);
+apuesta get_apostador_apuestas_realizadas(apostador ap);
+double get_apostador_beneficios_obtenidos(apostador ap);
+double get_apostador_dinero_ganado(apostador ap);
 double get_apostador_saldo(apostador ap);
-double get_gestor_apuestas_apostador_saldo(gestor_apuestas ga, int i);
-//set_gestor_apuestas_sem_ventanillas(gestor_apuestas * ga, int in){}   * sem_ventanillas;//Zonas criticas de memoria,semaforo
-void set_gestor_apuestas_carrera_comenzada(gestor_apuestas * ga, short in);
-//set_gestor_apuestas_n_apostadores(gestor_apuestas * ga, int in)  int n_apostadores;
-//void set_gestor_apuestas_(gestor_apuestas * ga, apostador ap);
-void set_gestor_apuestas_total_apostado(gestor_apuestas * ga, int in);
-//set_gestor_apuestas_apuestas()  int n_apuestas;
-void set_gestor_apuestas_apuestas_realizadas(gestor_apuestas * ga, apuesta ap);
 
+
+char * get_gestor_apuestas_apostador_nombre(gestor_apuestas ga, int i);
+
+/*SETTERS*/
+
+void set_apuesta_apostador_id(apuesta * ap, int in);
+void set_apuesta_ventanilla_id(apuesta * ap, int in);
+void set_apuesta_caballo_id(apuesta * ap, int in);
+void set_apuesta_cotizacion_caballo(apuesta * ap, double in);
+void set_apuesta_cantidad_apostada(apuesta * ap, double in);
+void set_apuesta_posible_beneficio(apuesta * ap, double in);
+
+void set_apostador_id(apostador * ap, int in);
+void set_apostador_nombre(apostador * ap, char * in);
+void set_apostador_total_apostado(apostador * ap, double in);
+void set_apostador_n_apuestas_realizadas(apostador * ap, int in);
+void set_apostador_apuestas_realizadas(apostador * ap, apuesta in);
+void set_apostador_beneficios_obtenidos(apostador * ap, double in);
+void set_apostador_dinero_ganado(apostador * ap, double in);
+void set_apostador_saldo(apostador * ap, double in);
+
+
+double get_gestor_apuestas_apostador_apuestas_realizadas_cantidad_apostada(gestor_apuestas g_apuestas,int i, int j);
+double get_apostador_apuestas_realizadas_cantidad_apostada(apostador ap, int i);
+double get_gestor_apuestas_apostador_saldo(gestor_apuestas ga, int i);
 
 #endif
