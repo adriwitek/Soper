@@ -421,21 +421,37 @@ int main (int argc, char ** argv){
 		}
 		/****************FIN FASE DURANTE LA CARRERA******************/
 
-		//	for(i=0;i<mem_compartida)
-
 		/*FIN CARRERA*/
-
 		/*
 			Imprimir Listado de apuestas realizadas:
 				- El apostador , ventanilla que gestiona la apuesta, el caballo, la cotizacion del caballo antes de la apuesta y la cantidad apostada
 				(estas apuestas en orden, segun se efectuaron)
-			Imprimir la posicion de los caballos, segun terminaron
-				imprimir_podio_caballos(mem_compartida->caballos_creados,imprimir_bonito);
+		*/
+		/*for(i=0;i<get_gestor_apuestas_n_apuestas(mem_compartida->g_apuestas);i++){
+			printf("Apostador_%d apuesta en ventanilla %d al caballo %d con cotizacion %lf un total de %lf\n",
+			get_gestor_apuestas_apostador_id(mem_compartida->g_apuestas,i),	get_gestor_apuestas_ventanilla_id(mem_compartida->g_apuestas,i),
+			get_gestor_apuestas_caballo_id(mem_compartida->g_apuestas,i), get_gestor_apuestas_cotizacion_caballo(mem_compartida->g_apuestas,i),
+			get_gestor_apuestas_cantidad_apostada(mem_compartida->g_apuestas,i) );
+		}*/
 
-			Imprimir resultado de las apuestas:
+		/*
+			Imprimir la posicion de los caballos, segun terminaron
+		*/
+		imprimir_podio_caballos(mem_compartida->caballos_creados,imprimir_bonito);
+		
+		/*
+		Imprimir resultado de las apuestas:
 				- Nombre del apostador, cantidad apostada, beneficios obtenidos y dinero restante
 				for(i=0;i<)
 		*/
+		/*for(i=0;i<get_gestor_apuestas_n_apostadores(mem_compartida->g_apuestas);i++){
+			printf("---- %s ----\n",get_gestor_apuestas_apostador_nombre(mem_compartida->g_apuestas,i));
+			for(j=0;get_gestor_apuestas_apostador_n_apuestas_realizadas(mem_compartida->g_apuestas,i);j++){
+				printf("Apuesta %d \t Cantidad %lf \t Beneficio %d \t Saldo %f \n", j, 
+					get_gestor_apuestas_apostador_apuestas_realizadas_cantidad_apostada(mem_compartida->g_apuestas,i,j), 5,
+					get_gestor_apuestas_apostador_saldo(mem_compartida->g_apuestas,i));
+			}
+		}*/
 
 		/****************FIN CARRERA******************/
 

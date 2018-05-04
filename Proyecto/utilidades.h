@@ -31,6 +31,5 @@ int aleat_num(int inf, int sup, int id);
 */
 char * replace_char(char* str, char find, char replace);
 
-void registrar_syslog(int * semaforon, int id_semaforo, char * cadena);
 
 #endif
