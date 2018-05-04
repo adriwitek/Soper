@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <syslog.h>
 
-#include "semaforos.h"
 /**
 * @brief genera un numero aleatorio entre dos margenes
 *
@@ -52,12 +51,4 @@ char * replace_char(char* str, char find, char replace){
         current_pos = strchr(current_pos,find);
     }
     return str;
-}
-
-void registrar_syslog(int * semaforon, int id_semaforo, char * cadena){
-    Down_Semaforo(*semaforon, 3, SEM_UNDO);
-    openlog( NULL, LOG_PID, LOG_SYSLOG);
-    syslog( LOG_SYSLOG | LOG_INFO, "%s", cadena);
-    closelog();
-    Up_Semaforo(*semaforon, 3, SEM_UNDO);
 }

@@ -1,33 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <unistd.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
-
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-
-#include <unistd.h>
-#include <pthread.h>
-#include <sys/mman.h>
-#include <wait.h>
-
-/* Para usar fstat */
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#include <syslog.h>
-
-#include "imprimir.h"
-#include "utilidades.h"
-#include "caballo.h"
 #include "semaforos.h"
+#include "caballo.h"
 
 
 typedef struct _Mensaje{ /*!< estructura mensaje*/

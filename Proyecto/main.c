@@ -30,7 +30,6 @@
 #include "caballo.h"
 #include "shared_memory.h"
 #include "gestor_apuestas.h"
-#include "utilidades.h"
 
 
 #define MAX_APOSTADORES 100
@@ -108,7 +107,7 @@ int main (int argc, char ** argv){
 	int *sem_sh_gestor;		/*Semaforos para la meoria compartida*/
 	int *sem_sh_monitor;	
 	
-	//struct _comunicacion_con_gestor comunicacion_con_gestor;
+	struct _comunicacion_con_gestor comunicacion_con_gestor;
 
 
 	int establo_creado = 0;
@@ -422,21 +421,37 @@ int main (int argc, char ** argv){
 		}
 		/****************FIN FASE DURANTE LA CARRERA******************/
 
-		//	for(i=0;i<mem_compartida)
-
 		/*FIN CARRERA*/
-
 		/*
 			Imprimir Listado de apuestas realizadas:
 				- El apostador , ventanilla que gestiona la apuesta, el caballo, la cotizacion del caballo antes de la apuesta y la cantidad apostada
 				(estas apuestas en orden, segun se efectuaron)
-			Imprimir la posicion de los caballos, segun terminaron
-				imprimir_podio_caballos(mem_compartida->caballos_creados,imprimir_bonito);
+		*/
+		/*for(i=0;i<get_gestor_apuestas_n_apuestas(mem_compartida->g_apuestas);i++){
+			printf("Apostador_%d apuesta en ventanilla %d al caballo %d con cotizacion %lf un total de %lf\n",
+			get_gestor_apuestas_apostador_id(mem_compartida->g_apuestas,i),	get_gestor_apuestas_ventanilla_id(mem_compartida->g_apuestas,i),
+			get_gestor_apuestas_caballo_id(mem_compartida->g_apuestas,i), get_gestor_apuestas_cotizacion_caballo(mem_compartida->g_apuestas,i),
+			get_gestor_apuestas_cantidad_apostada(mem_compartida->g_apuestas,i) );
+		}*/
 
-			Imprimir resultado de las apuestas:
+		/*
+			Imprimir la posicion de los caballos, segun terminaron
+		*/
+		imprimir_podio_caballos(mem_compartida->caballos_creados,imprimir_bonito);
+		
+		/*
+		Imprimir resultado de las apuestas:
 				- Nombre del apostador, cantidad apostada, beneficios obtenidos y dinero restante
 				for(i=0;i<)
 		*/
+		/*for(i=0;i<get_gestor_apuestas_n_apostadores(mem_compartida->g_apuestas);i++){
+			printf("---- %s ----\n",get_gestor_apuestas_apostador_nombre(mem_compartida->g_apuestas,i));
+			for(j=0;get_gestor_apuestas_apostador_n_apuestas_realizadas(mem_compartida->g_apuestas,i);j++){
+				printf("Apuesta %d \t Cantidad %lf \t Beneficio %d \t Saldo %f \n", j, 
+					get_gestor_apuestas_apostador_apuestas_realizadas_cantidad_apostada(mem_compartida->g_apuestas,i,j), 5,
+					get_gestor_apuestas_apostador_saldo(mem_compartida->g_apuestas,i));
+			}
+		}*/
 
 		/****************FIN CARRERA******************/
 
@@ -475,32 +490,23 @@ int main (int argc, char ** argv){
 		//contenido->caballos_creados = caballos_creados;
 
 
-
-
-
-
-
-
-
-
-
-		/*LEER DE LA MEMORIA COMPARTIDA SI YA HA INICIADO EL PUNTERO DE LOS CABALLOS*/
-		if(-1 ==  crear_ventanillas( 	&mem_compartida->g_apuestas, &mem_compartida->caballos_creados,  n_ventanillas, n_apostadores, msqid_cola_msg)){
+		/*LEER DE LA MEMORIA COMPARTIDA SI YA HA INICIADO EL PUNTERO*/
+		/*if(-1 ==  crear_ventanillas( g_apuestas, caballos_creados,  n_ventanillas, n_apostadores, msqid_cola_msg)){
 			printf("\n ERROR AL CREAR VENTANILLAS");
 		}
-		inicializa_apuestas(&mem_compartida->g_apuestas, &mem_compartida->caballos_creados);
-		
+		inicializa_apuestas(g_apuestas,caballos_creados);
+		*/
 		set_gestor_apuestas_msqid(&mem_compartida->g_apuestas,msqid_cola_msg);
 
 		ventanillas_abre_ventas( g_apuestas);/*Lanza los hilos*/
 
 		/*BUCLE PRINCIPAL DEL PROCESO*/
-		//do{
-		//	Down_Semaforo( *sh_gestor->semaforo,0, SEM_UNDO);/*Notificamos del inicio de la carrera al gesotr de apuestas*/
-		//	carrera_comenzada =contenido->carrera_comenzada;
-		//	Up_Semaforo( *sh_gestor->semaforo,0, SEM_UNDO);
+		do{
+			Down_Semaforo( *sh_gestor->semaforo,0, SEM_UNDO);/*Notificamos del inicio de la carrera al gesotr de apuestas*/
+			carrera_comenzada =contenido->carrera_comenzada;
+			Up_Semaforo( *sh_gestor->semaforo,0, SEM_UNDO);
 			/*Los hilos estan atiendo*/
-		//}while(carrera_comenzada != 1);
+		}while(carrera_comenzada != 1);
 
 		//YA HA EMPEZADO LA CARRERA
 		ventanillas_cierra_ventas(g_apuestas);
@@ -508,34 +514,19 @@ int main (int argc, char ** argv){
 		exit(EXIT_SUCCESS);
 
 	} else if (i==2){
-		/*********************************************PROCESO APOSTADOR********************************************************************************/
-		struct _Mensaje_Ventanilla mensaje;
-		int dinero;
+		/*PROCESO APOSTADOR*/
 		//printf("\tSoy el proceso apostador\n");
 		//trabajo_proceso_apostador(imprimir_bonito);
 		/*while(1){
 			msgsnd(msqid_cola_msg,);
 		}*/
-		for(i=0,j=2;i<30;i++,j++){
-			//memset(&mensaje.nombre_apostador[0],0,3000);
-			sleep(1);
-			mensaje.id = 12;		/*Tipo de mensajes de apuestas*/
-	    	sprintf(mensaje.nombre_apostador,"Apostador-%d",aleat_num(0,n_apostadores,0));
-	    	mensaje.id_caballo = aleat_num(0,atoi(argv[1]),0);
-			/*beneficios apostador restando*/
-			dinero = aleat_num(0,get_gestor_apuestas_apostador_saldo(mem_compartida->g_apuestas, mensaje.id),0);
-			
-			
-			
-		//	void set_gestor_apuestas_apostador_saldo(gestor_apuestas * ga,int id,  double saldo);
-			
-			
-			
-			if(dinero != 0){
-				mensaje.dinero_apuesta = dinero;
-				msgsnd(msqid_cola_msg,(struct msgbuf *) &msg, sizeof(struct _Mensaje_Ventanilla)-sizeof(long), 0);
-			}
-			
+		for(i=0,j=2;i<5;i++,j++){
+			memset(&msg.contenido[0],0,3000);
+			//ID ID_CABALLO CANTIDAD
+			//aleat_num(1,get_(saldo),0);
+	    	sprintf(msg.contenido,"%d-%d-300",i,j);
+			msg.id = 12;
+			msgsnd(msqid_cola_msg,(struct msgbuf *) &msg, sizeof(mensaje)-sizeof(long), 0);
 		}
 		exit(EXIT_SUCCESS);
 	}
