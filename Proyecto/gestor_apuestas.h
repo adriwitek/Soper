@@ -41,7 +41,7 @@ typedef struct _gestor_apuestas{
   int n_ventanillas;
   pthread_t * ventanillas;
   int ga_msqid;
-  int * sem_ventanillas;//Zonas criticas de memoria,semaforo
+  int sem_ventanillas;//Zonas criticas de memoria,semaforo
   short carrera_comenzada;/*Boolean*/
   
   int n_apostadores;
@@ -67,11 +67,10 @@ typedef struct _comunicacion_con_gestor {
     
 }comunicacion_con_gestor;
  
-int crear_ventanillas(struct _gestor_apuestas * g_apuestas,caballos* e_cab, int n_ventanillas,int n_apostadores, int msqid);
+int crear_ventanillas(struct _gestor_apuestas * g_apuestas,caballos* e_cab, int msqid);
 int ventanillas_abre_ventas(struct _gestor_apuestas * g_apuestas);
 int ventanillas_cierra_ventas(struct _gestor_apuestas * g_apuestas);
 void * ventanilla_atiende_clientes(void *argv);
-void inicializa_apuestas(struct _gestor_apuestas * g_apuestas,caballos* e_cab);
 void actualizar_cotizaciones_caballos(struct _gestor_apuestas * g_apuestas,caballos* e_cab);
 int* get_top_10_apostadores(struct _gestor_apuestas * g_apuestas);
 void liberar_gestor_apuestas(struct _gestor_apuestas * g_apuestas);
@@ -143,5 +142,10 @@ void set_apostador_saldo(apostador * ap, double in);
 double get_gestor_apuestas_apostador_apuestas_realizadas_cantidad_apostada(gestor_apuestas g_apuestas,int i, int j);
 double get_apostador_apuestas_realizadas_cantidad_apostada(apostador ap, int i);
 double get_gestor_apuestas_apostador_saldo(gestor_apuestas ga, int i);
+void set_gestor_apuestas_n_apostadores(gestor_apuestas * ga, int in);
+void set_gestor_apuestas_n_ventanillas(gestor_apuestas * ga, int in);
 
+
+void inicializar_apostadores(gestor_apuestas * g_apuestas, double saldo);
+int get_gestor_apuestas_n_ventanillas(gestor_apuestas g_apuestas);
 #endif

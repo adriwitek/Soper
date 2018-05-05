@@ -21,6 +21,8 @@
 typedef struct _estructura_memoria_compartida{
 	int shmid;
 	int semaforo_id;
+	int msqid;
+	int msqid_apuestas;
 	caballos caballos_creados;
 	gestor_apuestas g_apuestas;
 }estructura_memoria_compartida;

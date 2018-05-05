@@ -60,7 +60,7 @@ struct _msg_apostador{ /*!< estructura info*/
 	double apuesta;
 }msg_apostador;
 
-void imprimir_cuenta_atras(int imprimir_bonito);
+void imprimir_cuenta_atras(int imprimir_bonito, int fin);
 
 void imprimir_caballos(caballos caballos_creados);
 void imprimir_podio_caballos(caballos caballos_creados, int imprimir_bonito);
@@ -137,7 +137,11 @@ int main (int argc, char ** argv){
 	key_t clave_cola_msg; 
 	int msqid_cola_msg; 
 	mensaje msg_cola_msg;
-	
+
+	key_t clave_cola_msg_apuestas; 
+	int msqid_cola_msg_apuestas; 
+	mensaje msg_cola_msg_apuestas;
+
 	key_t clave_caballos_imprimir; 
 	int msqid_caballos_imprimir; 
 	mensaje msg_caballos_imprimir;
@@ -153,6 +157,9 @@ int main (int argc, char ** argv){
 	int imprimir_bonito = 0;
 
 	int flag_fin = 0;
+
+
+	mensaje_ventanilla mensaje;
 	/* 
 	 * Forma de llamar al programa
 	 *
@@ -205,8 +212,7 @@ int main (int argc, char ** argv){
 		
 		numero_total_procesos_sinc = 0;
 		numero_total_procesos_sinc = atoi(argv[1]) + 1;
-		n_ventanillas = atoi(argv[4]);
-		n_apostadores = atoi(argv[3]);
+
 
 		gotoxy(2,2);
 		printf("Se han introducido un total de:\n");
@@ -255,7 +261,11 @@ int main (int argc, char ** argv){
 
 
 	set_caballos_num_caballos(&mem_compartida->caballos_creados,atoi(argv[1]));
+	set_gestor_apuestas_n_apostadores(&mem_compartida->g_apuestas,atoi(argv[3]));
+	set_gestor_apuestas_n_ventanillas(&mem_compartida->g_apuestas,atoi(argv[4]));
 	inicializar_caballos(mem_compartida->caballos_creados);
+	inicializar_apostadores(&mem_compartida->g_apuestas, atoi(argv[5]));
+
 
 	/*************************************************************************************/
 
@@ -292,16 +302,7 @@ int main (int argc, char ** argv){
 
     /*************************************************************************************/
 
-   /*	sh_gestor = (informacion *) crea_o_asocia_shm(SH_KEY_GESTOR,sem_sh_gestor,TAM_SH);
-    if(sh_gestor == NULL){
-        printf("\n Fallo con la memoria compartida del proceso gestor");
-    }
-    
-    sh_monitor = (informacion *) crea_o_asocia_shm(SH_KEY_MONITOR,sem_sh_monitor,TAM_SH);
-    if(sh_monitor == NULL){
-        printf("\n Fallo con la memoria compartida del proceso monitor");
-    }
-*/
+
 	/*Cola de mensajes*/
   	clave_cola_msg = ftok ("/bin/ls", KEY+1); 
 	if (clave_cola_msg == (key_t) -1) { 
@@ -315,6 +316,21 @@ int main (int argc, char ** argv){
 		return(0); 
 	}
 
+	clave_cola_msg_apuestas = ftok ("/bin/ls", KEY+1); 
+	if (clave_cola_msg_apuestas == (key_t) -1) { 
+		perror("Error al obtener clave para cola mensajes\n"); 
+		exit(EXIT_FAILURE); 
+	} 
+
+	msqid_cola_msg_apuestas = msgget (clave_cola_msg, 0600 | IPC_CREAT); 
+	if (msqid_cola_msg_apuestas == -1) { 
+		perror("Error al obtener identificador para cola mensajes"); 
+		return(0); 
+	}
+
+
+	mem_compartida->msqid = msqid_cola_msg;
+	mem_compartida->msqid_apuestas = msqid_cola_msg_apuestas;
 
 
 	/***********************FIN FASE DE INICIACION***********************/
@@ -359,8 +375,26 @@ int main (int argc, char ** argv){
 		if(imprimir_bonito == 1){
 			gotoxy(98,4);
 		}
+		printf("\t Se estan haciendo las apuestas\n");
+		imprimir_cuenta_atras(imprimir_bonito,10);
+		if(imprimir_bonito == 1){
+			system("clear");
+			gotoxy(1,1);
+			imprimir_plantilla();
+		}
+		
+
+		memset(&msg_cola_msg_apuestas.contenido[0],0,3000);
+		sprintf(msg_cola_msg_apuestas.contenido,"FIN APUESTAS");
+		msg_cola_msg_apuestas.id=13;
+		for(i=0;i<get_gestor_apuestas_n_ventanillas(mem_compartida->g_apuestas);i++){
+			msgsnd(msqid_cola_msg_apuestas,(struct msgbuf *) &msg_cola_msg_apuestas, sizeof(mensaje_ventanilla)-sizeof(long), 0); //IPC_WAIT es 0
+		}
+
+		printf("\t Fin de apuestas\n");
+		
 		printf("\tSegundos para empezar la carrera: \n");
-		imprimir_cuenta_atras(imprimir_bonito);
+		imprimir_cuenta_atras(imprimir_bonito,15);
 		if(imprimir_bonito == 1){
 			system("clear");
 			gotoxy(1,1);
@@ -369,6 +403,9 @@ int main (int argc, char ** argv){
 
 		Up_Semaforo(*semaforon, s_sincro_1, SEM_UNDO);
 		Down_Semaforo(*semaforon, s_sincro_2, SEM_UNDO);
+
+
+
 
 		if(imprimir_bonito == 1){
 			gotoxy(67,7);
@@ -487,49 +524,84 @@ int main (int argc, char ** argv){
 		Up_Semaforo(*semaforon, s_sincro_principal_gestor_1, SEM_UNDO);
 		printf("Sincronizado gestor con principal\n");
 		
-		//contenido->caballos_creados = caballos_creados;
-
-
+		
 		/*LEER DE LA MEMORIA COMPARTIDA SI YA HA INICIADO EL PUNTERO*/
-		/*if(-1 ==  crear_ventanillas( g_apuestas, caballos_creados,  n_ventanillas, n_apostadores, msqid_cola_msg)){
+		if(-1 ==  crear_ventanillas(&mem_compartida->g_apuestas,&mem_compartida->caballos_creados, mem_compartida->msqid)){
 			printf("\n ERROR AL CREAR VENTANILLAS");
 		}
-		inicializa_apuestas(g_apuestas,caballos_creados);
-		*/
-		set_gestor_apuestas_msqid(&mem_compartida->g_apuestas,msqid_cola_msg);
-
-		ventanillas_abre_ventas( g_apuestas);/*Lanza los hilos*/
+		//inicializa_apuestas(g_apuestas,caballos_creados);
+		
+		//ventanillas_abre_ventas( g_apuestas);/*Lanza los hilos*/
 
 		/*BUCLE PRINCIPAL DEL PROCESO*/
-		do{
-			Down_Semaforo( *sh_gestor->semaforo,0, SEM_UNDO);/*Notificamos del inicio de la carrera al gesotr de apuestas*/
-			carrera_comenzada =contenido->carrera_comenzada;
-			Up_Semaforo( *sh_gestor->semaforo,0, SEM_UNDO);
+		//do{
+			//Down_Semaforo( *sh_gestor->semaforo,0, SEM_UNDO);/*Notificamos del inicio de la carrera al gesotr de apuestas*/
+			//carrera_comenzada =contenido->carrera_comenzada;
+			//Up_Semaforo( *sh_gestor->semaforo,0, SEM_UNDO);
 			/*Los hilos estan atiendo*/
-		}while(carrera_comenzada != 1);
+		//}while(carrera_comenzada != 1);
 
 		//YA HA EMPEZADO LA CARRERA
-		ventanillas_cierra_ventas(g_apuestas);
+		//ventanillas_cierra_ventas(g_apuestas);
 
 		exit(EXIT_SUCCESS);
 
 	} else if (i==2){
-		/*PROCESO APOSTADOR*/
-		//printf("\tSoy el proceso apostador\n");
-		//trabajo_proceso_apostador(imprimir_bonito);
-		/*while(1){
-			msgsnd(msqid_cola_msg,);
-		}*/
-		for(i=0,j=2;i<5;i++,j++){
-			memset(&msg.contenido[0],0,3000);
-			//ID ID_CABALLO CANTIDAD
-			//aleat_num(1,get_(saldo),0);
-	    	sprintf(msg.contenido,"%d-%d-300",i,j);
-			msg.id = 12;
-			msgsnd(msqid_cola_msg,(struct msgbuf *) &msg, sizeof(mensaje)-sizeof(long), 0);
+		/*********************************************PROCESO APOSTADOR********************************************************************************/
+		/**************************************************************************************************/
+		if((id=shmget(SH_KEY,sizeof(struct _estructura_memoria_compartida),IPC_CREAT|IPC_EXCL|0660))==-1){
+			if((id=shmget(SH_KEY,sizeof(struct _estructura_memoria_compartida),0))==-1){
+				printf("Error al abrir el segmento\n");
+			}
+			mem_compartida = shmat (id, (char *)0, 0);
+			if (mem_compartida == NULL) {
+				return -1; 
+			}
 		}
-		exit(EXIT_SUCCESS);
+
+		mem_compartida = shmat (id, (char *)0, 0);
+		if (mem_compartida == NULL) {
+			fprintf (stderr, "Error reserve shared memory \n");
+			return -1; 
+		}
+		/**************************************************************************************************/
+
+		printf("\tSoy el proceso apostador\n");
+		for(i=0;i<get_gestor_apuestas_n_apostadores(mem_compartida->g_apuestas);){
+			pid = fork();
+			if(pid < 0){
+				printf("Error al crear apostadores\n");
+				return -1;
+			} else if (pid == 0){
+				syslog(LOG_INFO | LOG_SYSLOG, "Apostador-%d creado\n", i);
+				memset(&mensaje.nombre_apostador[0],0,3000);
+				memset(&msg.contenido[0],0,3000);
+				sprintf(mensaje.nombre_apostador,"Apostador-%d",i);
+				mensaje.id = 12;
+				flag_fin = 0;
+				srand(getpid());
+				while(flag_fin == 0){
+					mensaje.id_caballo = aleat_num(1,get_caballos_num_caballos(mem_compartida->caballos_creados),0);
+					mensaje.dinero_apuesta = aleat_num(1,get_gestor_apuestas_apostador_saldo(mem_compartida->g_apuestas, i),0);
+					msgsnd(msqid_cola_msg,(struct msgbuf *) &mensaje, sizeof(mensaje_ventanilla)-sizeof(long), 0); //IPC_WAIT es 0
+					syslog(LOG_INFO | LOG_SYSLOG, "Apostador-%d manda apuesta { Caballo %d - Apostado %lf }\n", i, mensaje.id_caballo, mensaje.dinero_apuesta);
+					msgrcv(msqid_cola_msg_apuestas,(struct msgbuf *) &msg_cola_msg_apuestas, sizeof(msg_cola_msg_apuestas)-sizeof(long),13, IPC_NOWAIT);
+					if(strcmp(msg.contenido,"FIN APUESTAS")==0){
+						flag_fin = 1;
+					} else {
+						sleep(1);
+					}
+				}
+				syslog(LOG_INFO | LOG_SYSLOG, "Apostador-%d deja de apostar\n", i);
+				exit(EXIT_SUCCESS);
+			} else {
+				i++;
+			}
+		}
+
+		exit(EXIT_SUCCESS);	
 	}
+	while(wait(NULL)>0);
 
 	sigemptyset(&set_caballos);  
 
@@ -679,11 +751,11 @@ int main (int argc, char ** argv){
 }
 
 
-void imprimir_cuenta_atras(int imprimir_bonito){
+void imprimir_cuenta_atras(int imprimir_bonito,int fin){
 	
 	int i = 0;
 
-	for(i=5;i>=0;i--){
+	for(i=fin;i>=0;i--){
 		if(imprimir_bonito == 1){
 			gotoxy(108,5);
 			printf("%d\n", i);

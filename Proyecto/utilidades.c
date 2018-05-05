@@ -23,7 +23,7 @@
 int aleat_num(int inf, int sup, int id){
   int num_ale;
   if(inf > sup){
-  	printf("Aleat_NUM: inferior tiene que se mas pequeño que superior\n");
+  	printf("Aleat_NUM: inferior tiene que se mas pequeño que superior -- inf = %d y sup = %d \n", inf, sup);
   	return -1;
   }
   //srand(id);
