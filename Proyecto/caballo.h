@@ -47,7 +47,7 @@
 #define ini_X 70
 
 enum _e_sem_comunes {
-    s_sincro_1 = 1, s_sincro_2, s_sincro_principal_gestor_1 , s_sincro_principal_gestor_2, s_exclusion_syslog, s_sincro_monitorPrin_1 , s_sincro_monitorPrin_2
+    s_sincro_1 = 1, s_sincro_2, s_sincro_principal_gestor_1 , s_sincro_principal_gestor_2, s_exclusion, s_sincro_monitorPrin_1 , s_sincro_monitorPrin_2
 }e_sem_comunes;
 
 
@@ -73,7 +73,7 @@ typedef struct _caballos{
 	//podio * podio_caballos;
 } caballos;
 
-void inicializar_caballos(caballos caballos_creados);
+void inicializar_caballos(caballos * caballos_creados);
 
 
 /*FUNCIONES CABALLO*/
@@ -116,6 +116,8 @@ void set_caballos_apostado(caballos * caballos_creados, int id, double in);
 void set_caballos_total(caballos * caballos_creados, int in);
 void set_caballos_num_caballos(caballos * caballos_creados, int in);
 /*FIN FUNCIONES DE CABALLOS*/
+
+int get_caballo_id_ganador(caballos caballos_creados);
 
 int trabajo_caballos(int msqid_cola_msg, int msqid_caballos_imprimir, int * semaforon, int tuberias_padre_hijo[MAX_CABALLOS][2], int id_local_caballo, int posicion_local_caballo, int imprimir_bonito, int num_caballos);
 

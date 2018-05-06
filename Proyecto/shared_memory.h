@@ -14,18 +14,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "semaforos.h"
-#include "caballo.h"
-#include "gestor_apuestas.h"
 
-
-typedef struct _estructura_memoria_compartida{
-	int shmid;
-	int semaforo_id;
-	int msqid;
-	int msqid_apuestas;
-	caballos caballos_creados;
-	gestor_apuestas g_apuestas;
-}estructura_memoria_compartida;
 
 
 typedef struct info{
@@ -33,6 +22,8 @@ typedef struct info{
    int *  semaforo;
    void * contenido;
 }informacion;
+
+
 /*tamanio en N bytes(del contenido de la struct info)*/
 /*el parametro key es necesario para poder asociar la memoria con otra que tenga la misma clave*/
 /*!!!!Ojo, el puntero a char devuelto es conveniente hacerle un cast a informacion **/

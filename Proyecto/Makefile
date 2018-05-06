@@ -2,8 +2,8 @@ FLAG = -std=gnu99 -Wall -g
 
 all: semaforos.o utilidades.o caballo.o imprimir.o main 
 
-main: main.c imprimir.o semaforos.o utilidades.o caballo.o gestor_apuestas.o shared_memory.o
-	gcc -o main main.c caballo.o imprimir.o semaforos.o utilidades.o gestor_apuestas.o shared_memory.o -lpthread
+main: main.c imprimir.o semaforos.o utilidades.o caballo.o gestor_apuestas.o 
+	gcc -o main main.c caballo.o imprimir.o semaforos.o utilidades.o gestor_apuestas.o -lpthread
 
 
 testMem1: testMem1.c imprimir.o semaforos.o utilidades.o caballo.o gestor_apuestas.o shared_memory.o imprimir.o
@@ -21,9 +21,9 @@ caballo.o:
 	gcc -c caballo.c caballo.h $(FLAG)
 
 gestor_apuestas.o: gestor_apuestas.c gestor_apuestas.h 
-	gcc -c gestor_apuestas.c gestor_apuestas.h $(FLAG)
+	gcc -c gestor_apuestas.c gestor_apuestas.h  $(FLAG)
 	
-shared_memory.o: shared_memory.h shared_memory.c caballo.o gestor_apuestas.o
+shared_memory.o: shared_memory.c shared_memory.h caballo.o gestor_apuestas.o
 	gcc -c shared_memory.c shared_memory.h caballo.o gestor_apuestas.o $(FLAG)
 
 

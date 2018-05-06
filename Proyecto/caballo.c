@@ -8,15 +8,15 @@ typedef struct _Mensaje{ /*!< estructura mensaje*/
 }mensaje; /*!< mensaje*/
 
 
-void inicializar_caballos(caballos caballos_creados){
+void inicializar_caballos(caballos * caballos_creados){
 
 	int i = 0;
-	for(i=0;i<caballos_creados.num_caballos;i++){
-		set_caballos_posicion(&caballos_creados,i,0);
-		set_caballos_apostado(&caballos_creados,i,1.0);
-		set_caballos_cotizacion(&caballos_creados,i,1.0);
-		set_caballos_tirada(&caballos_creados,i,0);
-		set_caballos_acumulado_tirada(&caballos_creados,i,0);
+	for(i=0;i<caballos_creados->num_caballos;i++){
+		set_caballos_posicion(caballos_creados,i,0);
+		set_caballos_apostado(caballos_creados,i,1.0);
+		set_caballos_cotizacion(caballos_creados,i,(double)(1/caballos_creados->num_caballos));
+		set_caballos_tirada(caballos_creados,i,0);
+		set_caballos_acumulado_tirada(caballos_creados,i,0);
 	}
 
 }
@@ -36,7 +36,7 @@ void set_caballo_posicion(caballo *caballo_in, int i){caballo_in->posicion = i;}
 void set_caballo_tirada(caballo *caballo_in, int i){caballo_in->tirada = i;}
 void set_caballo_acumulado_tirada(caballo *caballo_in, int i){caballo_in->acumulado_tirada += i;}
 void set_caballo_cotizacion(caballo *caballo_in, double i){caballo_in->cotizacion = i;}
-void set_caballo_apostado(caballo *caballo_in, double i){caballo_in->apostado = i;}
+void set_caballo_apostado(caballo *caballo_in, double i){caballo_in->apostado += i;}
 /*FIN FUNCIONES DE CABALLO*/
 
 /*FUNCIONES DE CABALLOS - LA ESTRUCTURA*/
@@ -60,6 +60,20 @@ void set_caballos_apostado(caballos * caballos_creados, int id, double in){set_c
 void set_caballos_total(caballos * caballos_creados, int in){caballos_creados->total=in;};
 void set_caballos_num_caballos(caballos * caballos_creados, int in){caballos_creados->num_caballos=in;};
 /*FIN FUNCIONES DE CABALLOS*/
+
+int get_caballo_id_ganador(caballos caballos_creados){
+
+	int i = 0, j = 0;
+	for(i=0;i<get_caballos_num_caballos(caballos_creados);i++){
+		for(j=0;j<get_caballos_num_caballos(caballos_creados);j++){
+			if(get_caballos_posicion(caballos_creados,j)==i){
+				return get_caballos_id(caballos_creados,j);
+			}
+		}
+	}
+	return -1;
+
+}
 
 int trabajo_caballos(int msqid_cola_msg, int msqid_caballos_imprimir, int * semaforon, int tuberias_padre_hijo[MAX_CABALLOS][2],
 					 int id_local_caballo, int posicion_local_caballo, int imprimir_bonito, int num_caballos){
@@ -88,12 +102,9 @@ int trabajo_caballos(int msqid_cola_msg, int msqid_caballos_imprimir, int * sema
 			//printf("Caballo %d pos:%d tira:%d\n", id_local_caballo, posicion_local_caballo,i_aux);
 		}
 		sleep(1);
-		/*Semaforo numero 3 es de exclusion para la zona de syslog*/
-		//Down_Semaforo(*semaforon, s_exclusion_syslog, SEM_UNDO);
-		
 		syslog( LOG_SYSLOG | LOG_INFO, "Caballo %d - hace una tirada %d", id_local_caballo, i_aux);
-		
-		//Up_Semaforo(*semaforon, s_exclusion_syslog, SEM_UNDO);
+	} else {
+		return -1;
 	}
 
 	if(imprimir_bonito == 1){
@@ -101,11 +112,7 @@ int trabajo_caballos(int msqid_cola_msg, int msqid_caballos_imprimir, int * sema
 		sprintf(msg.contenido,"%d",i_aux);
 		msg.id = id_local_caballo+1;
 		msgsnd(msqid_caballos_imprimir,(struct msgbuf *) &msg, sizeof(mensaje)-sizeof(long), IPC_NOWAIT);
-		//Down_Semaforo(*semaforon, s_exclusion_syslog, SEM_UNDO);
-		
 		syslog( LOG_SYSLOG | LOG_INFO, "Caballo %d - envia su tirada(%d) por cola de mensajes", id_local_caballo, i_aux);
-		
-		//Up_Semaforo(*semaforon, s_exclusion_syslog, SEM_UNDO);
 	}
 
 	return i_aux;
@@ -237,7 +244,6 @@ void recorrer_pista_i(int msqid_caballos_imprimir, int * semaforon, int longitud
 				}
 
 				usleep(tiempo);
-/*Semaforo numero 3 es de exclusion para la zona de syslog*/
 
 				if(posicion_X<=118 && posicion_Y == 6){ // primera mitad recta
 					gotoxy(posicion_X,posicion_Y);
